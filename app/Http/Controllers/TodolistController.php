@@ -19,7 +19,7 @@ class TodolistController extends Controller
     public function todoList(Request $request)
     {
         $todolist = $this->todolistService->getTodolist();
-        return response()->view("todolist.todolist", [
+        return response()->view("todolist.index", [
             "title" => "Todolist",
             "todolist" => $todolist
         ]);
@@ -29,24 +29,31 @@ class TodolistController extends Controller
     {
         $todo = $request->input("todo");
 
-        if (empty($todo)) {
-            $todolist = $this->todolistService->getTodolist();
-            return response()->view("todolist.todolist", [
-                "title" => "Todolist",
-                "todolist" => $todolist,
-                "error" => "Todo is required"
-            ]);
-        }
+        $validated = $request->validate([
+            'todo' => 'required|min:10'
+        ]);
 
-        $this->todolistService->saveTodo(uniqid(), $todo);
+
+        $this->todolistService->saveTodo($validated['todo']);
 
         return redirect()->action([TodolistController::class, 'todoList']);
+    }
+
+    public function editTodo(string $id, Request $request) {
+        $validated = $request->validate([
+            'todo' => 'required'
+        ]);
+
+        // dd($id);
+
+        $this->todolistService->editTodo($id,$validated['todo']);
+
+        return back()->with('message','success update todo');
     }
 
     public function removeTodo(Request $request, string $todoId): RedirectResponse
     {
         $this->todolistService->removeTodo($todoId);
-        return redirect()->action([TodolistController::class, 'todoList']);
+        return back()->with('message', 'success delete todo');
     }
-
 }

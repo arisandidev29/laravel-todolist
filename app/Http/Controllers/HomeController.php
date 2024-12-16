@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    public function home(Request $request): RedirectResponse
+    public function index(Request $request): RedirectResponse
     {
-        if ($request->session()->exists("user")) {
-            return redirect("/todolist");
-        } else {
-            return redirect("/login");
+        if(Auth::check()) {
+            return redirect('/todolist');
         }
+
+        return redirect('/login');
     }
+
 }

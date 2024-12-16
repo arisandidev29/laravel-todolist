@@ -6,6 +6,7 @@ use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
 class UserControllerTest extends TestCase
@@ -75,6 +76,17 @@ class UserControllerTest extends TestCase
     {
         $this->post('/logout')
             ->assertRedirect("/");
+    }
+
+    public function testRegister() {
+        $this->post('/register', [
+            'name' => 'nandi',
+            'email' => 'nandi@gmail.com',
+            'password' => 'nandi123@',
+            'password-confirm' => 'nandi123@'
+        ])->assertRedirect('/login');
+
+
     }
 
 }

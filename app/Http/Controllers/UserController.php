@@ -6,6 +6,8 @@ use App\Services\UserService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -29,31 +31,57 @@ class UserController extends Controller
 
     public function doLogin(Request $request): Response|RedirectResponse
     {
-        $user = $request->input('user');
+        $user = $request->input('email');
         $password = $request->input('password');
 
-        // validate input
-        if (empty($user) || empty($password)) {
-            return response()->view("user.login", [
-                "title" => "Login",
-                "error" => "User or password is required"
-            ]);
-        }
+        // validate data
+        $request->validate([
+            'email' => 'required',
+            'password' => 'required'
+        ]);
 
         if ($this->userService->login($user, $password)) {
-            $request->session()->put("user", $user);
-            return redirect("/");
+            $request->session()->regenerate();
+            return redirect("/todolist");
         }
 
-        return response()->view("user.login", [
-            "title" => "Login",
-            "error" => "User or password is wrong"
-        ]);
+        return back()->withErrors([
+            'message' => 'email or password wrong '
+        ])->onlyInput('email');
+
+    }
+
+
+    public function register() {
+        return view('user.register');
+    }
+
+    public function doRegister(Request $request) {
+        $validated = $request->validate([
+        'username' => 'required',
+        'email' => 'required|unique:users,email',
+        'password' => Password::min(8)->letters()->numbers(),
+        'password-confirm' => 'required|same:password'
+       ]);
+
+    //    dd($validated);
+
+
+       if($this->userService->register($validated)) {
+            return redirect('/login')->with('message','success create account, please login');    
+       }
+
+
     }
 
     public function doLogout(Request $request): RedirectResponse
     {
-        $request->session()->forget("user");
-        return redirect("/");
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }

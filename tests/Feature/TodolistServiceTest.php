@@ -3,9 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\Todo;
+use App\Models\User;
 use App\Services\TodolistService;
+use Database\Seeders\TodoSeeder;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Testing\Assert;
@@ -16,13 +20,30 @@ class TodolistServiceTest extends TestCase
 
     private TodolistService $todolistService;
 
-    protected function setUp():void
+    protected function setUp(): void
     {
         parent::setUp();
 
         DB::delete('delete from todos');
+        DB::delete('delete from users');
         $this->todolistService = $this->app->make(TodolistService::class);
     }
+
+
+    public function testGetTodolistCurrentUser()
+    {
+        $this->seed([UserSeeder::class, TodoSeeder::class]);
+
+        $user = User::where('name', 'arisandi')->first();
+
+        Auth::login($user);
+
+        $todo = $this->todolistService->getTodolist();
+        self::assertEquals(2,count($todo));
+    }
+
+
+
 
     public function testTodolistNotNull()
     {
@@ -31,14 +52,17 @@ class TodolistServiceTest extends TestCase
 
     public function testSaveTodo()
     {
-        $this->todolistService->saveTodo("1", "Eko");
+        $this->seed([UserSeeder::class, TodoSeeder::class]);
+
+        $user = User::where('name','arisandi')->first();
+        Auth::login($user);
+
+
+        $this->todolistService->saveTodo("3", "nandi");
 
         $todolist = $this->todolistService->getTodolist();
-        // dump($todolist);
-        foreach ($todolist as $value){
-            self::assertEquals("1", $value['id']);
-            self::assertEquals("Eko", $value['todo']);
-        }
+        dump($todolist);
+        self::assertEquals(3, count($todolist));
     }
 
     public function testGetTodolistEmpty()
@@ -69,20 +93,23 @@ class TodolistServiceTest extends TestCase
 
     public function testRemoveTodo()
     {
-        $this->todolistService->saveTodo("1", "Eko");
-        $this->todolistService->saveTodo("2", "Kurniawan");
+        $this->seed([UserSeeder::class, TodoSeeder::class]);
 
-        self::assertEquals(2, sizeof($this->todolistService->getTodolist()));
-
-
-        $this->todolistService->removeTodo("1");
-
-        self::assertEquals(1, sizeof($this->todolistService->getTodolist()));
-
-        $this->todolistService->removeTodo("2");
-
-        self::assertEquals(0, sizeof($this->todolistService->getTodolist()));
-    }
+        $todo = Todo::where('todo','arisandi')->first();
 
 
+        $this->todolistService->removeTodo($todo->id);
+
+        self::assertEquals(1, count(Todo::all()));
+   }
+
+   public function testEditTodo() {
+
+    $this->seed([UserSeeder::class, TodoSeeder::class]);
+    $id = Todo::first()->id;
+
+    $this->todolistService->editTodo($id,'hello');
+
+
+   }
 }

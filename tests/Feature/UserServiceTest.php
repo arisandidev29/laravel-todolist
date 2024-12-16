@@ -13,7 +13,7 @@ class UserServiceTest extends TestCase
 {
     private UserService $userService;
 
-    protected function setUp():void
+    protected function setUp(): void
     {
         parent::setUp();
         DB::delete("delete from users");
@@ -38,4 +38,15 @@ class UserServiceTest extends TestCase
         self::assertFalse($this->userService->login("khannedy", "salah"));
     }
 
+    public function testRegiterSuccess()
+    {
+        $data = (object)[
+            'username' => 'nandi',
+            'email' => 'nandi@gmail.com',
+            'password' => 'nandi123@'
+        ];
+
+        // dd($data->username);
+        self::assertTrue($this->userService->register($data));
+    }
 }

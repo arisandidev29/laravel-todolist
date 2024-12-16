@@ -5,23 +5,35 @@
             <p>By Arisandi Kader</p>
 
         </div>
-        <div class="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl">
-            <form class="card-body" method="post" action="/login">
+        <div class="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl ">
+            <h1 class="text-2xl text-primary text-center text-bold pt-4 ">Register</h1>
+            <form class="card-body" method="post" action="/register">
                 @csrf
-
-                {{-- success register message --}}
-
-                @if(session('message'))
-                   <div role="alert" class="inline-block alert alert-info rounded-xl text-center">{{ session('message') }}</div> 
-                @else
-                    
-                @endif
 
                 @error('message')
                     <div role="alert" class=" inline-block alert p-2 alert-error rounded-xl text-center">{{ $message }}</div>
                 @enderror
 
 
+
+
+
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Username</span>
+                    </label>
+                    <input type="username" placeholder="username" class="input input-bordered" name="username"
+                        value="{{ old('username') }}" />
+                </div>
+                {{-- error --}}
+                @error('username')
+                    <div role="alert" class=" inline-block alert p-2 alert-error rounded-xl text-center">{{ $message }}</div>
+                @enderror
+
+
+
+                {{-- enderror --}}
 
                 <div class="form-control">
                     <label class="label">
@@ -59,10 +71,28 @@
                 {{-- enderror --}}
 
 
-                <div class="form-control mt-6">
-                    <button class="btn btn-primary">Login</button>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Password Confirm</span>
+                    </label>
+                    <input type="password" placeholder="password confirm" class="input input-bordered" name="password-confirm" value="{{old('password')}}"/>
                 </div>
-                <a href="/register" class="link link-hover label-text text-center">Belum punya Akun ? Daftar Disini</a>
+
+                {{-- error --}}
+
+                @error('password-confirm')
+                    <div role="alert" class=" inline-block alert p-2 alert-error rounded-xl text-center">{{ $message }}</div>
+                    
+                @enderror
+
+
+                {{-- enderror --}}
+
+
+                <div class="form-control mt-6">
+                    <button class="btn btn-primary">Register</button>
+                </div>
+                <a href="/login" class="link link-hover label-text text-center">Sudah Punya Akun ? Login disini </a>
             </form>
         </div>
     </div>
